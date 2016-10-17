@@ -133,9 +133,9 @@ int main (int argc,char* argv[])
 	char* explicitFileName;
 	if (argc == 1)
 	{
-		signal sig1;
-		sig1.workWithData(sig1);
-		return 1;
+		signal sig1;//default constructor being called
+		//sig1.workWithData(sig1);
+		//return 1;
 	}
 	else
 	{
@@ -205,20 +205,16 @@ int main (int argc,char* argv[])
 	if(explicitFile ==1)
 	{
 		signal sig1(explicitFileName);
-		sig1.workWithData(sig1);
-		return 1;
+		//sig1.workWithData(sig1);
+		//return 1;
 	}
 	else
 	{
 		signal sig1(fileNo);
-		sig1.workWithData(sig1);
-		return 1;
+		//sig1.workWithData(sig1);
+		//return 1;
 	}	
-	return 1;
-}
-void signal::workWithData(signal sig1)
-{
-	int userInput =1;
+	int userInput =1;//****code from workWithData begins here 
 	double offsetVal;
 	double scaleVal;
 	char saveFileString[50];
@@ -230,19 +226,19 @@ void signal::workWithData(signal sig1)
 		switch(userInput)
 		{
 			case 0:
-				return;
+				return 1;
 				break;
 			case 1: 
 				cout<<"Enter a scale value" <<endl;
 				cin>>scaleVal;
 				cout<<"Scaling data..."<<endl;
-				sig1.scale(scaleVal);
+				sig1.scale(scaleVal);//this is where i get the compile error. somehow sig1 is out of scope??? 
 				break;
 			case 2:
 				cout<<"Enter an offset value"<<endl;
 				cin>>offsetVal;
 				cout<<"Offsetting data..."<<endl;
-				sig1.offset(offsetVal);
+				sig1.offset(offsetVal);//this will cause the compile error if we omit the scale call........ and so on.......
 				break;
 			case 3: 
 				cout<<"Normalizing data..."<<endl;
@@ -264,9 +260,13 @@ void signal::workWithData(signal sig1)
 			default:
 				break;
 		}
-	}
-	return;
+	}//****ends here 
+	return 1;
 }
+//void signal::workWithData(signal sig1)//this is where that block of code used to be, however i DO NOT want to have to use the workwithData method, i dont understand this error 
+//{
+	
+//}
 void signal::save_signal(const char* fileName)
 {
 	double* start = array;
