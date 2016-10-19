@@ -10,21 +10,21 @@ void helpFunction(void);
 
 
 class signal{
-	private:
+	private://hands off, users!
 		int file;
 		int numEl;
 		double* array;//pointer to data
 		double mean;
 		double maxVal;
 		double meanFinder(int,double*);//private method for finding the mean (can only be accessed by objects of this class)
-		void save_signal(const char*);
-		void offset(double);
+		
+	public:
+		void save_signal(const char*);//public methods
+		void offset(double);//implemented them all pretty much the same way
 		void scale(double);
 		void normalize(void);
 		void center(void);
 		void display(void);
-	public:
-		void workWithData(signal);//implemented this method because signal 1 will be created differently for different scenarios
 		signal (void);//default constructor
 		signal (int);//constructor for a file number being inputted 
 		signal (const char*);//constructor for the file name
@@ -37,20 +37,11 @@ signal::~signal()
 }
 signal::signal(void)
 {
-	int fileNo;
 	int i =0;
 	char fileString[50];
-	cout <<"NOTE:In the current constructor, ONLY the raw data files may be accessed\nYou did not provide a file name to work with or a file number, please enter a number 1 - 14\n" << endl;
-	cin >> fileNo;
-	while(fileNo < 1 || fileNo > 14)
-	{
-		cout << "Try that again, user..\n" << endl;
-		cin >> fileNo;
-	}
-	if(fileNo > 10) sprintf(fileString,"Raw_data_%d.txt",fileNo);
-	else sprintf(fileString,"Raw_data_0%d.txt",fileNo);
-	FILE* fp = fopen(fileString,"r");
-	if(fp == NULL)
+	sprintf(fileString,"Raw_data_01.txt");//this is the file that i open by default 
+	FILE* fp = fopen(fileString,"r");//opening file
+	if(fp == NULL)//from this point on, the constructors are identical
 	{
 		cout << "Could not open the file, terminating\n" << endl;
 		return;
@@ -98,7 +89,6 @@ signal::signal(const char* fileName)
 }
 signal::signal(int fileNo)
 {
-	cout << "NOTE:In the current constructor, ONLY the raw data files may be accessed\n" << endl;
 	char fileString[50];
 	int i =0;
 	if(fileNo > 10) sprintf(fileString,"Raw_data_%d.txt",fileNo);
@@ -128,17 +118,9 @@ int main (int argc,char* argv[])
 {
 	int explicitFile = 0;//this is a truth value 
 	int fileNo;
+	int fileNum;
 	int i =1;
-	char* newNameString;
 	char* explicitFileName;
-	if (argc == 1)
-	{
-		signal sig1;//default constructor being called
-		//sig1.workWithData(sig1);
-		//return 1;
-	}
-	else
-	{
 		while(i < argc)//this loops steps through each command line argument and checks its syntax
 				//please note the truth value integers being set once a certain tag has been found
 		{
@@ -191,6 +173,7 @@ int main (int argc,char* argv[])
 					else
 					{
 						fileNo = atoi(argv[i]);
+						fileNum = 1;
 						printf("You want to work with file %d\n",fileNo);
 					}
 				}
@@ -201,44 +184,38 @@ int main (int argc,char* argv[])
 			}
 			i++;
 		}
-	}
-	if(explicitFile ==1)
-	{
-		signal sig1(explicitFileName);
-		//sig1.workWithData(sig1);
-		//return 1;
-	}
-	else
-	{
-		signal sig1(fileNo);
-		//sig1.workWithData(sig1);
-		//return 1;
-	}	
-	int userInput =1;//****code from workWithData begins here 
+
+	signal sig1;//declares the signal for the first time, using the default constructor
+	if(explicitFile == 1) sig1 = signal(explicitFileName);//checks the truth values and will reconstruct accordingly
+	else if (fileNum ==1) sig1 = signal(fileNo);
+	//PRETTY SURE MY CODE IS BREAKING EITHER IN THE CONSTRUCTORS OR DOWN BELOW IN THE METHODS THEMSELVES.
+	int userInput = 1000;
 	double offsetVal;
 	double scaleVal;
 	char saveFileString[50];
 	cout << "Alrighty there user!!! We actually got your file open (believe it or not)\nWhat do you want to do with it now? there are several things to choose from" << endl;
-	while(userInput != 0)
+	while(userInput != 0)//loops until 0
 	{
+
+
 		cout << "\n\n0: Exit the program\n1: Scale the data\n2: Offset the data\n3: Normalize the data\n4: Center the data\n5: Save the current signal to a file\n6: Display information on the current signal\n" <<endl;
-		cin >> userInput;
-		switch(userInput)
+
+		cin >> userInput;	
+		switch(userInput)//switch decides what is done with the data
 		{
 			case 0:
-				return 1;
 				break;
 			case 1: 
 				cout<<"Enter a scale value" <<endl;
 				cin>>scaleVal;
 				cout<<"Scaling data..."<<endl;
-				sig1.scale(scaleVal);//this is where i get the compile error. somehow sig1 is out of scope??? 
+				sig1.scale(scaleVal);
 				break;
 			case 2:
 				cout<<"Enter an offset value"<<endl;
 				cin>>offsetVal;
 				cout<<"Offsetting data..."<<endl;
-				sig1.offset(offsetVal);//this will cause the compile error if we omit the scale call........ and so on.......
+				sig1.offset(offsetVal);
 				break;
 			case 3: 
 				cout<<"Normalizing data..."<<endl;
@@ -260,32 +237,28 @@ int main (int argc,char* argv[])
 			default:
 				break;
 		}
-	}//****ends here 
+	}
 	return 1;
 }
-//void signal::workWithData(signal sig1)//this is where that block of code used to be, however i DO NOT want to have to use the workwithData method, i dont understand this error 
-//{
-	
-//}
-void signal::save_signal(const char* fileName)
+void signal::save_signal(const char* fileName)//NOTE: this method does not cause any issues
 {
 	double* start = array;
 	int i =1;
-	FILE* fp = fopen(fileName,"w");
-	fprintf(fp,"%d\t%lf\n",numEl,maxVal);
+	FILE* fp = fopen(fileName,"w");//opens the file that the user wanted 
+	fprintf(fp,"%d\t%lf\n",numEl,maxVal);//prints out the "heading" info
 	while(i <= numEl)
 	{
-		fprintf(fp,"%lf\n",*array);
+		fprintf(fp,"%lf\n",*array);//prints each element into the file
 		array++;
 		i++;
 	}
 	array = start;
 	fclose(fp);
 }
-void signal::center(void)
+void signal::center(void)//NOTE: this is one of the methods causing issues 
 {
 	int i = 1;
-	double* start = array;
+	double* start = array;//using this pointer to keep track of the head of the data
 	while(i < numEl)
 	{
 		*array = *array - mean;
@@ -297,7 +270,7 @@ void signal::center(void)
 	mean = meanFinder(numEl,array);
 	array = start;
 }
-void signal::normalize(void)
+void signal::normalize(void)//NOTE: another one that IS causing issues
 {
 	int i =1;
 	double* start = array;
@@ -312,7 +285,7 @@ void signal::normalize(void)
 	mean = meanFinder(numEl,array);
 	array = start;
 }
-void signal::offset(double offsetVal)
+void signal::offset(double offsetVal)//NOTE: another one that IS causing issues
 {
 	int i = 1;
 	double* start = array;
@@ -327,7 +300,7 @@ void signal::offset(double offsetVal)
 	mean = meanFinder(numEl,array);
 	array = start;
 }
-void signal::scale(double scaleVal)
+void signal::scale(double scaleVal)//NOTE: this one does not cause any issues
 {
 	int i = 1;
 	double* start = array;
