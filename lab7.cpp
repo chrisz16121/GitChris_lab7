@@ -25,6 +25,7 @@ class signal{
 		void normalize(void);
 		void center(void);
 		void display(void);
+		void workWithData(signal);
 		signal (void);//default constructor
 		signal (int);//constructor for a file number being inputted 
 		signal (const char*);//constructor for the file name
@@ -185,12 +186,34 @@ int main (int argc,char* argv[])
 			i++;
 		}
 
-	signal sig1;//declares the signal for the first time, using the default constructor
-	if(explicitFile == 1) sig1 = signal(explicitFileName);//checks the truth values and will reconstruct accordingly
-	else if (fileNum ==1) sig1 = signal(fileNo);
-	//PRETTY SURE MY CODE IS BREAKING EITHER IN THE CONSTRUCTORS OR DOWN BELOW IN THE METHODS THEMSELVES.
+	if(argc == 1)//IF there were not command line arguments entered by the user 
+	{
+		signal sig1;//declares and calls using the default constructor
+		sig1.workWithData(sig1);//calls the method that will contunue until program ends
+		return 1;
+	}
+	else if(explicitFile == 1)//IF the user entered a file name to work with
+	{
+		signal sig1(explicitFileName);//calls using one of the parametric constructors 
+		sig1.workWithData(sig1);
+		return 1;
+	}
+	else if(fileNum == 1)//IF the user entered a file number to work with
+	{
+		signal sig1(fileNo);//calls the other parametric constructor
+		sig1.workWithData(sig1);
+		return 1;
+	}
+	else
+	{
+		cout << "No constructor was called!\n" << endl;
+		return 1;
+	}
+}
+void signal::workWithData(signal sig1)//this is the moethod that displays the menu to the user and handles its inputs
+{
 	int userInput = 1000;
-	double offsetVal;
+	double offsetVal;//both of type double to allow manipulation
 	double scaleVal;
 	char saveFileString[50];
 	cout << "Alrighty there user!!! We actually got your file open (believe it or not)\nWhat do you want to do with it now? there are several things to choose from" << endl;
@@ -198,7 +221,7 @@ int main (int argc,char* argv[])
 	{
 
 
-		cout << "\n\n0: Exit the program\n1: Scale the data\n2: Offset the data\n3: Normalize the data\n4: Center the data\n5: Save the current signal to a file\n6: Display information on the current signal\n" <<endl;
+		cout << "0: Exit the program\n1: Scale the data\n2: Offset the data\n3: Normalize the data\n4: Center the data\n5: Save the current signal to a file\n6: Display information on the current signal" <<endl;
 
 		cin >> userInput;	
 		switch(userInput)//switch decides what is done with the data
@@ -238,7 +261,7 @@ int main (int argc,char* argv[])
 				break;
 		}
 	}
-	return 1;
+	return;
 }
 void signal::save_signal(const char* fileName)//NOTE: this method does not cause any issues
 {
@@ -257,7 +280,7 @@ void signal::save_signal(const char* fileName)//NOTE: this method does not cause
 }
 void signal::center(void)//NOTE: this is one of the methods causing issues 
 {
-	int i = 1;
+	int i = 0;
 	double* start = array;//using this pointer to keep track of the head of the data
 	while(i < numEl)
 	{
@@ -272,7 +295,7 @@ void signal::center(void)//NOTE: this is one of the methods causing issues
 }
 void signal::normalize(void)//NOTE: another one that IS causing issues
 {
-	int i =1;
+	int i =0;
 	double* start = array;
 	while(i < numEl)
 	{
@@ -287,7 +310,7 @@ void signal::normalize(void)//NOTE: another one that IS causing issues
 }
 void signal::offset(double offsetVal)//NOTE: another one that IS causing issues
 {
-	int i = 1;
+	int i = 0;
 	double* start = array;
 	maxVal = maxVal + offsetVal;
 	while(i < numEl)
@@ -302,7 +325,7 @@ void signal::offset(double offsetVal)//NOTE: another one that IS causing issues
 }
 void signal::scale(double scaleVal)//NOTE: this one does not cause any issues
 {
-	int i = 1;
+	int i = 0;
 	double* start = array;
 	maxVal =  maxVal * scaleVal;
 	while(i < numEl)
@@ -324,10 +347,10 @@ void helpFunction(void)//void function to print out a help menu
 	printf("WELCOME!\nHere in lab5.c, we want to make it easy to access and manipulate the information located within these select files!\nTo execute this program correctly, run ./lab4 along with any arguments appended\nEXAMPLE:./lab4 -n 3 -o 5.3\nThe tags must be proceeded by a valid value in which to perform the operation.\n\n\n-n <file_choice>\tSelects the file in which you want to work with, note valid files range from 1 to 11\n-o <offset_value>\tOffsets each value in the file that you have selected, by the offset value proceeding the tag\n-s <scale_value>\tScales each value in the file that you have selected, by the scaling value proceeding the tag\n-S\t\t\tProvides a new file in which you will find the mean value of the data file you have selected, as well as the maximum value present in the file\n-C\t\t\tCenters the signal in the file you have chosen and writes an output file\n-N\t\t\tNormalizes the signal in the file you have chosen and writes an output file\n-r <new_file_name>\tRenames the current file you have chosen, be sure to proceed the tag with the NEW desired name of the file\n-h\t\t\tDisplays this help menu\n\n\n");
 	return;
 }
-double signal::meanFinder(int numEl,double* array)
+double signal::meanFinder(int numEl,double* array)//this is the only private member function. simply calculates the mean of the data sent to it
 {
 	double mean;
-	int i =1;
+	int i =0;
 	double total;
 	while(i < numEl)
 	{
